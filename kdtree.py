@@ -86,10 +86,7 @@ class kdTree:
     def rangeSearch(self,searchRange):
         treeRange=[]
         for i in range(self.keySize):
-            if type(searchRange[i][0])==str:
-                treeRange.append(['?','{'])
-            else:
-                treeRange.append([-math.inf,math.inf])
+                treeRange.append([' ','~'])
         return self.rangeSearchHelper(searchRange,treeRange,self.root,set(),self.root.dim)
     
     def rangeSearchHelper(self,searchRange,treeRange,currNode,res,Dim):
@@ -106,20 +103,12 @@ class kdTree:
         # print('overlap')
         flag=1
         for i in range(self.keySize):
-            if type(currNode.key[i])==str:
-                if currNode.key[i].lower()<searchRange[i][0] or currNode.key[i].lower()>searchRange[i][1]:
-                    flag=0
-                    # print(treeRange)
-                    # print(searchRange)
-                    # print('curr not add')
-                    break
-            else:
-                if currNode.key[i]<searchRange[i][0] or currNode.key[i]>searchRange[i][1]:
-                    flag=0
-                    # print(treeRange)
-                    # print(searchRange)
-                    # print('curr not add')
-                    break
+            if currNode.key[i].lower()<searchRange[i][0] or currNode.key[i].lower()>searchRange[i][1]:
+                flag=0
+                # print(treeRange)
+                # print(searchRange)
+                # print('curr not add')
+                break
         if flag==1: res.add(currNode)
         treeRange_left=[]
         treeRange_right=[]
@@ -128,12 +117,8 @@ class kdTree:
             temp2=li.copy()
             treeRange_left.append(temp1)
             treeRange_right.append(temp2)
-        if type(currNode.key[Dim])==str:
-            treeRange_left[Dim][1]=currNode.key[Dim].lower()
-            treeRange_right[Dim][0]=currNode.key[Dim].lower()
-        else:
-            treeRange_left[Dim][1]=currNode.key[Dim]
-            treeRange_right[Dim][0]=currNode.key[Dim]
+        treeRange_left[Dim][1]=currNode.key[Dim].lower()
+        treeRange_right[Dim][0]=currNode.key[Dim].lower()
         # print(treeRange_left)
         # print(treeRange_right)
         res=res.union(self.rangeSearchHelper(searchRange,treeRange_left,currNode.left,res,(Dim+1)%self.keySize))
@@ -141,17 +126,18 @@ class kdTree:
         return res
     
 a=kdTree(keySize=3)
-a.insert(Node(['Kirk Acevedo',164060400,'kirkacevedo'],'a'))
-a.insert(Node(['Michael Cudlitz',31672638,'Cudlitz'],'b'))
-a.insert(Node(['Scott Grimes',24426175,'ScottGrimes'],'c'))
-a.insert(Node(['Richard Speight, Jr.',224450775,'dicksp8jr'],'d'))
-a.insert(Node(['Donnie Wahlberg',24776235,'DonnieWalberg'],'e'))
-a.insert(Node(['Alexis Conran',27212075,'alexisconran'],'f'))
-a.insert(Node(['Jimmy Fallon',15485441,'jimmyfallon'],'g'))
-a.insert(Node(['Simon Pegg',18713254,'simonpegg'],'h'))
-a.search(['Simon Pegg',18713254,'simonpegg']).info()
+a.insert(Node(['Kirk Acevedo','164060400','kirkacevedo'],'a'))
+a.insert(Node(['Michael Cudlitz','31672638','Cudlitz'],'b'))
+a.insert(Node(['Scott Grimes','24426175','ScottGrimes'],'c'))
+a.insert(Node(['Richard Speight, Jr.','224450775','dicksp8jr'],'d'))
+a.insert(Node(['Donnie Wahlberg','24776235','DonnieWalberg'],'e'))
+a.insert(Node(['Alexis Conran','27212075','alexisconran'],'f'))
+a.insert(Node(['Jimmy Fallon','15485441','jimmyfallon'],'g'))
+a.insert(Node(['Simon Pegg','18713254','simonpegg'],'h'))
+a.insert(Node(['Simon Schatzberger','2961960436','sischatzberger'],'i'))
+a.search(['Simon Pegg','18713254','simonpegg']).info()
 print(a.size)
-li=a.rangeSearch([['j','s'],[10000000,400000000],['c','l']])
+li=a.rangeSearch([['j','s'],['1','4'],['c','l']])
 # print('start')
 for node in li:
     print(node.key)
