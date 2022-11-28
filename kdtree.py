@@ -95,16 +95,31 @@ class kdTree:
     def rangeSearchHelper(self,searchRange,treeRange,currNode,res,Dim):
         if currNode is None:
             return set()
+        # print(currNode.key)
         if self.overlap(searchRange,treeRange)=='none':
+            # print('none')
             return set()
         if self.overlap(searchRange,treeRange)=='subset':
+            # print('subset')
             self.getAllNodes(currNode,res)
             return res
+        # print('overlap')
         flag=1
         for i in range(self.keySize):
-            if currNode.key[i]<searchRange[i][0] or currNode.key[i]>searchRange[i][1]:
-                flag=0
-                break
+            if type(currNode.key[i])==str:
+                if currNode.key[i].lower()<searchRange[i][0] or currNode.key[i].lower()>searchRange[i][1]:
+                    flag=0
+                    # print(treeRange)
+                    # print(searchRange)
+                    # print('curr not add')
+                    break
+            else:
+                if currNode.key[i]<searchRange[i][0] or currNode.key[i]>searchRange[i][1]:
+                    flag=0
+                    # print(treeRange)
+                    # print(searchRange)
+                    # print('curr not add')
+                    break
         if flag==1: res.add(currNode)
         treeRange_left=[]
         treeRange_right=[]
@@ -119,11 +134,13 @@ class kdTree:
         else:
             treeRange_left[Dim][1]=currNode.key[Dim]
             treeRange_right[Dim][0]=currNode.key[Dim]
+        # print(treeRange_left)
+        # print(treeRange_right)
         res=res.union(self.rangeSearchHelper(searchRange,treeRange_left,currNode.left,res,(Dim+1)%self.keySize))
         res=res.union(self.rangeSearchHelper(searchRange,treeRange_right,currNode.right,res,(Dim+1)%self.keySize))
         return res
     
-a=kdTree(keySize=2)
+a=kdTree(keySize=3)
 a.insert(Node(['Kirk Acevedo',164060400,'kirkacevedo'],'a'))
 a.insert(Node(['Michael Cudlitz',31672638,'Cudlitz'],'b'))
 a.insert(Node(['Scott Grimes',24426175,'ScottGrimes'],'c'))
@@ -132,8 +149,9 @@ a.insert(Node(['Donnie Wahlberg',24776235,'DonnieWalberg'],'e'))
 a.insert(Node(['Alexis Conran',27212075,'alexisconran'],'f'))
 a.insert(Node(['Jimmy Fallon',15485441,'jimmyfallon'],'g'))
 a.insert(Node(['Simon Pegg',18713254,'simonpegg'],'h'))
-# a.search(['arc',3]).info()
-# print(a.size)
-li=a.rangeSearch([['A','n'],[20000000,40000000],['A','e']])
+a.search(['Simon Pegg',18713254,'simonpegg']).info()
+print(a.size)
+li=a.rangeSearch([['j','s'],[10000000,400000000],['c','l']])
+# print('start')
 for node in li:
     print(node.key)
