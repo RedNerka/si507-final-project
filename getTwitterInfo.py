@@ -79,19 +79,68 @@ def connect_to_endpoint(url):
         )
     return response.json()
 
+def getFollowing(userID,infoDict):
+    print('called')
+    nameList=[]
+    if userID in INFOCACHE:
+        nameList=INFOCACHE[userID].copy()
+        for username in nameList:
+            if username in INFOCACHE:
+                infoDict[username]=INFOCACHE[username]
+            else:
+                url = create_url(username)
+                json_response = connect_to_endpoint(url)
+                infoDict[username]=json_response['data'][0]
+                INFOCACHE[username]=json_response['data'][0]
+                caching.writeCache(INFOCACHE,'twitter.json')
+    else:
+        url="https://api.twitter.com/2/users/{}/following".format(userID)
+        params={"user.fields": "description,created_at,id,location,name,profile_image_url"}
+        response = requests.request("GET", url, auth=bearer_oauth, params=params)
+        if response.status_code != 200:
+            raise Exception(
+                "Request returned an error: {} {}".format(
+                    response.status_code, response.text
+                )
+            )
+        json_response=response.json()
+        for following in json_response['data']:
+            nameList.append(following['username'])
+            infoDict[following['username']]=following
+            INFOCACHE[following['username']]=following
+            caching.writeCache(INFOCACHE,'twitter.json')
+        INFOCACHE[userID]=nameList.copy()
+        caching.writeCache(INFOCACHE,'twitter.json')
+    return nameList
+
 def getTwitterInfo(usernames):
     infoDict={}
     for username in usernames:
-        if username[0] in INFOCACHE:
-            infoDict[username[0]]=INFOCACHE[username[0]]
+        if username[1] in INFOCACHE:
+            infoDict[username[1]]=INFOCACHE[username[1]]
+            try:
+                INFOCACHE[username[1]]['following']==None
+            except KeyError:
+                infoDict[username[1]]['following']=getFollowing(int(infoDict[username[1]]['id']),infoDict)
+                INFOCACHE[username[1]]=infoDict[username[1]]
+                caching.writeCache(INFOCACHE,'twitter.json')
+            for name in infoDict[username[1]]['following']:
+                if name in INFOCACHE:
+                    infoDict[name]=INFOCACHE[name]
+                else:
+                    url = create_url(name)
+                    json_response = connect_to_endpoint(url)
+                    infoDict[name]=json_response['data'][0]
+                    INFOCACHE[name]=json_response['data'][0]
+                    caching.writeCache(INFOCACHE,'twitter.json')
         else:
             url = create_url(username[1])
             json_response = connect_to_endpoint(url)
-            infoDict[username[0]]=json_response
-            INFOCACHE[username[0]]=json_response
+            json_response['data'][0]['following']=getFollowing(int(json_response['data'][0]['id']),infoDict)
+            infoDict[username[1]]=json_response['data'][0]
+            INFOCACHE[username[1]]=json_response['data'][0]
             caching.writeCache(INFOCACHE,'twitter.json')
     return infoDict
-            
 
 def main():
     BoB=getTwitterUsername('https://en.wikipedia.org/wiki/Band_of_Brothers_(miniseries)','band of brothers')
@@ -104,6 +153,7 @@ def main():
     res3=getTwitterInfo(BH)
     res4=getTwitterInfo(MM)
     res5=getTwitterInfo(GWH)
+    print(res1)
     
 
 if __name__ == "__main__":
