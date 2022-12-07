@@ -141,20 +141,3 @@ def getTwitterInfo(usernames):
             INFOCACHE[username[1]]=json_response['data'][0]
             caching.writeCache(INFOCACHE,'twitter.json')
     return infoDict
-
-def main():
-    BoB=getTwitterUsername('https://en.wikipedia.org/wiki/Band_of_Brothers_(miniseries)','band of brothers')
-    SPR=getTwitterUsername('https://en.wikipedia.org/wiki/Saving_Private_Ryan','saving private ryan')
-    BH=getTwitterUsername('https://en.wikipedia.org/wiki/Braveheart','braveheart')
-    MM=getTwitterUsername('https://en.wikipedia.org/wiki/Mad_Max:_Fury_Road','mad max')
-    GWH=getTwitterUsername('https://en.wikipedia.org/wiki/Good_Will_Hunting','good will hunting')
-    res1=getTwitterInfo(BoB)
-    res2=getTwitterInfo(SPR)
-    res3=getTwitterInfo(BH)
-    res4=getTwitterInfo(MM)
-    res5=getTwitterInfo(GWH)
-    print(res1)
-    
-
-if __name__ == "__main__":
-    main()
