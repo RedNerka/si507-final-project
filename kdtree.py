@@ -248,7 +248,13 @@ def main():
                 else:
                     insertkey=['','']
                     insertvalue={}
-                    insertkey[0]=input('Please enter Twitter user ID. ')
+                    temp1=input('Please enter Twitter user ID. ')
+                    try:
+                        int(temp1)
+                        insertkey[0]=temp1
+                    except ValueError:
+                        print('Invalid ID number!')
+                        continue
                     insertkey[1]=input('Please enter Twitter username. ')
                     anInput=''
                     while anInput.lower()!='no':
@@ -261,17 +267,17 @@ def main():
             elif userInput=='range search':
                 Range=[[' ','~'],[' ','~']]
                 lowerID=input('Please enter the starting first digit of Twitter user ID. Press enter to start from 0. ')
-                upperID=input('Please enter the ending first digit of Twitter user ID. Press enter to end with 9. ')
-                lowerUsr=input('Please enter the starting first character of Twitter username. Press enter to start from a. ')
-                upperUsr=input('Please enter the ending first character of Twitter username. Press enter to end with z. ')
                 if len(lowerID.strip())==1: Range[0][0]=lowerID
-                else: print('Invalid input')
+                elif len(lowerID.strip())>1: print('Invalid input')
+                upperID=input('Please enter the ending first digit of Twitter user ID. Press enter to end with 9. ')
                 if len(upperID.strip())==1: Range[0][1]=upperID
-                else: print('Invalid input')
+                elif len(upperID.strip())>1: print('Invalid input')
+                lowerUsr=input('Please enter the starting first character of Twitter username. Press enter to start from a. ')
                 if len(lowerUsr.strip())==1: Range[1][0]=lowerUsr
-                else: print('Invalid input')
+                elif len(lowerUsr.strip())>1: print('Invalid input')
+                upperUsr=input('Please enter the ending first character of Twitter username. Press enter to end with z. ')
                 if len(upperUsr.strip())==1: Range[1][1]=upperUsr
-                else: print('Invalid input')
+                elif len(upperUsr.strip())>1: print('Invalid input')
                 li=[]
                 for i in inputList:
                     li+=list(treeList[i][0].rangeSearch(Range))
@@ -284,9 +290,14 @@ def main():
                         print(node.key)
                         print(node.value)
                 elif num.strip().isdigit():
-                    for i in range(int(num.strip())):
-                        print(res[i].key)
-                        print(res[i].value)
+                    if int(num.strip())<=len(res):
+                        for i in range(int(num.strip())):
+                            print(res[i].key)
+                            print(res[i].value)
+                    else:
+                        for node in res:
+                            print(node.key)
+                            print(node.value)
                 else:
                     print('Invalid input!')
             elif userInput=='get following':
@@ -335,7 +346,10 @@ def main():
                     for i in res1.value['following']:
                         if i in res2.value['following']:
                             res.append(i)
-                    print(res)
+                    if len(res)>0:
+                        print(res)
+                    else:
+                        print('No common following users! ')
             elif userInput=='return':
                 break
             else:
