@@ -62,7 +62,7 @@ def main():
         print('The database includes some contributors of 5 TV works:')
         for i in index:
             print(str(index[i])+' '+i)
-        userInput=input("Please enter the index(s) of the TV work(s) that you want to look up and separate them with space. Otherwise enter quit to end the service. ").strip()
+        userInput=' '.join(input("Please enter the index(s) of the TV work(s) that you want to look up and separate them with space. Otherwise enter quit to end the service. ").split())
         if userInput.lower()=='quit':
             print('Bye!')
             exit(0)
@@ -84,7 +84,7 @@ def main():
         # User inputs are not case-sensitive, and white spaces will not influence the if statements.
         while True:
             print('Search by ID, Search by username, Insert, Range search, Get following, Find common following, Print Tree, Return, Quit.')
-            userInput=input("Enter a function listed above. ").strip().lower()   
+            userInput=' '.join(input("Enter a function listed above. ").split()).lower()   
             # ----------------------------------------------------------------------------------------------------------------------------
             # Go in this if statement if user enters quit.
             if userInput=='quit':
@@ -93,7 +93,7 @@ def main():
             # ----------------------------------------------------------------------------------------------------------------------------
             # Go in this if statement if user enters search by id.
             elif userInput=='search by id':
-                searchID=input('Please enter the twitter ID you want to search. ').strip()
+                searchID=' '.join(input('Please enter the twitter ID you want to search. ').split())
                 print('Searching...')
                 res=None
                 try:
@@ -117,7 +117,7 @@ def main():
             # ----------------------------------------------------------------------------------------------------------------------------
             # Go in this if statement if user enters search by username.
             elif userInput=='search by username':
-                searchUsername=input('Please enter the twitter username you want to search. ').strip()
+                searchUsername=' '.join(input('Please enter the twitter username you want to search. ').split())
                 print('Searching...')
                 res=None
                 try:
@@ -162,22 +162,24 @@ def main():
                         anInput=input('Add more? ')
                     treeList[inputList[0]][1].insert(Node(insertkey,insertvalue))
                     treeList[inputList[0]][1].search(insertkey).info()
+                    idMap[insertkey[0]]=insertkey
+                    usrnameMap[insertkey[1]]=insertkey
             # ----------------------------------------------------------------------------------------------------------------------------
             # Go in this if statement if user enters range search.
             elif userInput=='range search':
                 Range=[[' ','~'],[' ','~']]
                 lowerID=input('Please enter the starting first digit of Twitter user ID. Press enter to start from 0. ')
-                if len(lowerID.strip())==1: Range[0][0]=lowerID
-                elif len(lowerID.strip())>1: print('Invalid input')
+                if len(' '.join(lowerID.split()))==1: Range[0][0]=lowerID
+                elif len(' '.join(lowerID.split()))>1: print('Invalid input')
                 upperID=input('Please enter the ending first digit of Twitter user ID. Press enter to end with 9. ')
-                if len(upperID.strip())==1: Range[0][1]=upperID
-                elif len(upperID.strip())>1: print('Invalid input')
+                if len(' '.join(upperID.split()))==1: Range[0][1]=upperID
+                elif len(' '.join(upperID.split()))>1: print('Invalid input')
                 lowerUsr=input('Please enter the starting first character of Twitter username. Press enter to start from a. ')
-                if len(lowerUsr.strip())==1: Range[1][0]=lowerUsr
-                elif len(lowerUsr.strip())>1: print('Invalid input')
+                if len(' '.join(lowerUsr.split()))==1: Range[1][0]=lowerUsr
+                elif len(' '.join(lowerUsr.split()))>1: print('Invalid input')
                 upperUsr=input('Please enter the ending first character of Twitter username. Press enter to end with z. ')
-                if len(upperUsr.strip())==1: Range[1][1]=upperUsr
-                elif len(upperUsr.strip())>1: print('Invalid input')
+                if len(' '.join(upperUsr.split()))==1: Range[1][1]=upperUsr
+                elif len(' '.join(upperUsr.split()))>1: print('Invalid input')
                 li=[]
                 for i in inputList:
                     li+=list(treeList[i][0].rangeSearch(Range))
@@ -188,10 +190,10 @@ def main():
                 if num=='':
                     for node in res:
                         node.info()
-                elif num.strip().isdigit():
-                    if int(num.strip())<=len(res):
-                        for i in range(int(num.strip())):
-                            node.info()
+                elif ' '.join(num.split()).isdigit():
+                    if int(' '.join(num.split()))<=len(res):
+                        for i in range(int(' '.join(num.split()))):
+                            res[i].info()
                     else:
                         for node in res:
                             node.info()
@@ -200,7 +202,7 @@ def main():
             # ----------------------------------------------------------------------------------------------------------------------------
             # Go in this if statement if user enters get following.
             elif userInput=='get following':
-                searchUsername=input('Please enter the twitter username you want to search. ').strip()
+                searchUsername=' '.join(input('Please enter the twitter username you want to search. ').split())
                 print('Searching...')
                 res=None
                 try:
@@ -221,8 +223,8 @@ def main():
             # ----------------------------------------------------------------------------------------------------------------------------
             # Go in this if statement if user enters find common following.
             elif userInput=='find common following':
-                searchUsername1=input('Please enter the first twitter username you want to search. ').strip()
-                searchUsername2=input('Please enter the second twitter username you want to search. ').strip()
+                searchUsername1=' '.join(input('Please enter the first twitter username you want to search. ').split())
+                searchUsername2=' '.join(input('Please enter the second twitter username you want to search. ').split())
                 res1=None
                 res2=None
                 res=[]
@@ -262,19 +264,19 @@ def main():
             elif userInput=='print tree':
                 nodeCount=0
                 printChoice=input('Which tree to print? Contributor tree or following tree or Both? ')
-                if printChoice.strip().lower()=='contributor tree':
+                if ' '.join(printChoice.split()).lower()=='contributor tree':
                     for i in inputList:
                         print('Printing contributor tree...')
                         treeList[i][0].printTree()
                         nodeCount+=treeList[i][0].size
                     print(f'There are {nodeCount} nodes in total. ')
-                elif printChoice.strip().lower()=='following tree':
+                elif ' '.join(printChoice.split()).lower()=='following tree':
                     for i in inputList:
                         print('Printing following tree...')
                         treeList[i][1].printTree()
                         nodeCount+=treeList[i][1].size
                     print(f'There are {nodeCount} nodes in total. ')
-                elif printChoice.strip().lower()=='both':
+                elif ' '.join(printChoice.split()).lower()=='both':
                     for i in inputList:
                         print('Printing both trees...')
                         treeList[i][0].printTree()

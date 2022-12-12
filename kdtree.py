@@ -14,22 +14,21 @@ class Node:
         '''
         Print all needed information of the node so as to know the information in this node as well as the location of the node in the tree.
         '''
-        print(f'Key is {self.key}')
-        print(f'Value is {self.value}')
+        print(f'Key is {self.key}, dimension is {self.dim}. ',end='')
         if self.parent:
-            print(f'Parent is {self.parent.key}')
+            print(f'Parent is {self.parent.key}. ',end='')
         else:
-            print('No parent node')
+            print('No parent node. ',end='')
         if self.left:
-            print(f'Left child is {self.left.key}')
+            print(f'Left child is {self.left.key}. ',end='')
         else:
-            print('No left node')
+            print('No left node. ',end='')
         if self.right:
-            print(f'Right child is {self.right.key}')
+            print(f'Right child is {self.right.key}. ')
         else:
-            print('No right node')
-        print(f'Dimension is {self.dim}')
-        print('\n')
+            print('No right node. ')
+        print(f'Value is {self.value}. ')
+        print('\n',end='')
 
 class kdTree:
     '''
