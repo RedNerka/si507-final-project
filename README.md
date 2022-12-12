@@ -3,9 +3,10 @@
 The project includes the use of Twitter API v2 OAuth. As a result, a set of keys are needed. TwitterSecrets.py has been uploaded to canvas. In order to run the codes 
 correctly, please keep TwitterSecrets.py in the same folder with all other Python codes.  
 Be aware, the twitter keys and tokens are generated for personal use. Please discard TwitterSecrets.py after examining the codes immediately.  
+Required Python packages: requests, BeautifulSoup.  
 
 ## Interaction with the program  
-The program interacts with the user from the command line. The main interaction program is in kdTree.py. Please run kdTree.py to start interacting with the program.  
+The program interacts with the user from the command line. The main interaction program is in interaction.py. Please run interaction.py to start interacting with the program.  
 Users have several available interactions to choose from. All inputs are not case-sensitive.  
 - The data includes 1106 records of Twitter user information. 24 of them are contributors in five TV works: Band of Brothers, Saving Private Ryan, Braveheart, Mad Max: 
 Fury Road, and Good Will Hunting. 1082 of them are the Twitter users that the 24 contributors are following. Users need to enter the index(s) (0-4) to indicate 
@@ -47,3 +48,6 @@ Which TV work(s) they want to look up.
   - If no common followings, output="No common following users! "
 - Return
   - Users enter "return" to return to the previous menu (choosing TV works)
+- Print Tree
+  - Users enter the tree they want to print (Contributor tree includes information of TV work contributors, while following tree includes information of the users the contributors are following)
+  - The printing order in in-order. Print from the left-most node to the right-most node.

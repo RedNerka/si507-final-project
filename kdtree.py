@@ -1,39 +1,54 @@
 class Node:
+    '''
+    A data structure to store the data in a tree node.
+    '''
     def __init__(self,key,value,parent=None,left=None,right=None,dim=0):
-        self.key=key
-        self.value=value
-        self.parent=parent
-        self.left=left
-        self.right=right
-        self.dim=dim
+        self.key=key # key of node, in my case, it is a list in the shape of [<user ID>,<username>]
+        self.value=value # value of node, it is a dictionary with keys: created_at, location, name, profile_image_url, description. If it is a node in contributor tree, extra key: following.
+        self.parent=parent # key of parent node of this node
+        self.left=left # key of left node of this node
+        self.right=right # key of right node of this node
+        self.dim=dim # the dimension of this node.
 
     def info(self):
-        print(f'key is {self.key}')
-        print(f'value is {self.value}')
+        '''
+        Print all needed information of the node so as to know the information in this node as well as the location of the node in the tree.
+        '''
+        print(f'Key is {self.key}')
+        print(f'Value is {self.value}')
         if self.parent:
-            print(f'parent is {self.parent.key}')
+            print(f'Parent is {self.parent.key}')
         else:
-            print('no parent')
+            print('No parent node')
         if self.left:
-            print(f'left child is {self.left.key}')
+            print(f'Left child is {self.left.key}')
         else:
-            print('no left')
+            print('No left node')
         if self.right:
-            print(f'right child is {self.right.key}')
+            print(f'Right child is {self.right.key}')
         else:
-            print('no right')
-        print(f'dimension is {self.dim}')
+            print('No right node')
+        print(f'Dimension is {self.dim}')
+        print('\n')
 
 class kdTree:
+    '''
+    A data structure to store all data nodes.
+    '''
     def __init__(self,keySize):
-        self.root=None
-        self.size=0
-        self.keySize=keySize
+        self.root=None # the root node of the tree
+        self.size=0 # the number of nodes in the tree
+        self.keySize=keySize # the dimension of the tree, in my case, keySize=2
 
     def search(self,key):
         return self.searchHelper(key,self.root,self.root.dim)
     
     def searchHelper(self,key,node,Dim):
+        '''
+        Input: Key to search. Key is a list with shape [<User ID>,<Username>]; the current node; the current dimension
+        Output: a node if key is found, otherwise None.
+        The function is the helper function of search. The function is a recursing function that will call itself when percolating down.
+        '''
         if node==None:
             return None
         if node.key==key:
@@ -51,6 +66,12 @@ class kdTree:
         self.size+=1
 
     def insertHelper(self,node,currNode,Dim):
+        '''
+        Input: a node to insert; the current node; the current dimension
+        Output: None
+        The function is the helper function of insert. It will update the node value if the key is found.
+        The function is a recursing function that will call itself when percolating down.
+        '''
         if node.key==currNode.key:
             currNode.value=node.value
         if node.key[Dim]<currNode.key[Dim]:
@@ -65,6 +86,11 @@ class kdTree:
                 currNode.right=Node(node.key,node.value,parent=currNode,dim=(Dim+1)%self.keySize)
 
     def overlap(self,searchRange,treeRange):
+        '''
+        Input: a range to search and the range of current node with shape [[<ID_min,ID_max>],[<username_min>,<username_max>]]
+        Output: If the two ranges overlap, return 'overlap'. If the two ranges have no overlap, return 'none'. If one range covers the other, return 'subset'.
+        The function judges the relationship between the search range and the current node range.
+        '''
         for i in range(self.keySize):
             if not (treeRange[i][0]>=searchRange[i][0] and treeRange[i][1]<=searchRange[i][1]):
                 if treeRange[i][0]>searchRange[i][1] or treeRange[i][1]<searchRange[i][0]:
@@ -74,6 +100,11 @@ class kdTree:
         return 'subset'
 
     def getAllNodes(self,currNode,nodeSet):
+        '''
+        Input: the current node; a set of nodes.
+        Output: None
+        The function will add the current node and all the nodes in its left and right subtrees into the set of nodes. The order is in-order.
+        '''
         if currNode is not None:
             self.getAllNodes(currNode.left,nodeSet)
             nodeSet.add(currNode)
@@ -82,28 +113,32 @@ class kdTree:
     def rangeSearch(self,searchRange):
         treeRange=[]
         for i in range(self.keySize):
-                treeRange.append([' ','~'])
+                treeRange.append([' ','~']) # For the root node, the range is universe.
         return self.rangeSearchHelper(searchRange,treeRange,self.root,set(),self.root.dim)
     
     def rangeSearchHelper(self,searchRange,treeRange,currNode,res,Dim):
+        '''
+        Input: the search range; The range of current node; The current node; the result node set; the current dimension.
+        Output: a set of nodes that are in the search range.
+        The function judges the relationship between the search range and the range of current node.
+        If 'none', return empty set.
+        If 'subset', add all nodes under the current node into the result set.
+        If current node is None, return empty set.
+        If 'overlap', judge whether the current node is in the search range. Add it into the result set if it's in range.
+        Calculate the range for the left child and the right child.
+        Recurse itself when percolating down the left and right subtree.
+        '''
         if currNode is None:
             return set()
-        # print(currNode.key)
         if self.overlap(searchRange,treeRange)=='none':
-            # print('none')
             return set()
         if self.overlap(searchRange,treeRange)=='subset':
-            # print('subset')
             self.getAllNodes(currNode,res)
             return res
-        # print('overlap')
         flag=1
         for i in range(self.keySize):
             if currNode.key[i][0].lower()<searchRange[i][0] or currNode.key[i][0].lower()>searchRange[i][1]:
                 flag=0
-                # print(treeRange)
-                # print(searchRange)
-                # print('curr not add')
                 break
         if flag==1: res.add(currNode)
         treeRange_left=[]
@@ -115,19 +150,23 @@ class kdTree:
             treeRange_right.append(temp2)
         treeRange_left[Dim][1]=currNode.key[Dim].lower()
         treeRange_right[Dim][0]=currNode.key[Dim].lower()
-        # print(treeRange_left)
-        # print(treeRange_right)
         res=res.union(self.rangeSearchHelper(searchRange,treeRange_left,currNode.left,res,(Dim+1)%self.keySize))
         res=res.union(self.rangeSearchHelper(searchRange,treeRange_right,currNode.right,res,(Dim+1)%self.keySize))
         return res
 
-    # def printTree(self):
-    #     self.printTreeHelper(self.root)
+    def printTree(self):
+        self.printTreeHelper(self.root)
     
-    # def printTreeHelper(self,node):
-    #     if node is not None:
-    #         if node.left is not None:
-    #             self.printTreeHelper(node.left)
-    #         print(node.key)
-    #         if node.right is not None:
-    #             self.printTreeHelper(node.right)
+    def printTreeHelper(self,node):
+        '''
+        Input: current node.
+        Output: None
+        The function is the helper function of printTree.
+        The function will print the node information from the left-most node to the right-most node. Node.info() will be called.
+        '''
+        if node is not None:
+            if node.left is not None:
+                self.printTreeHelper(node.left)
+            node.info()
+            if node.right is not None:
+                self.printTreeHelper(node.right)

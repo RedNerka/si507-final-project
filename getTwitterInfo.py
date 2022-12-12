@@ -4,12 +4,24 @@ import caching
 from bs4 import BeautifulSoup
 import re
 
-bearer_token = TwitterSecrets.Bearer_token
-PAGECACHE=caching.openCache('pages.json')
-USERCACHE=caching.openCache('username.json')
-INFOCACHE=caching.openCache('twitter.json')
+bearer_token = TwitterSecrets.Bearer_token #bearer token used in Twitter API.
+PAGECACHE=caching.openCache('pages.json') # Data cache that stores the html scripts from the wikipedia pages. Save time in requests.get
+USERCACHE=caching.openCache('username.json') # Data cache that stores the Twitter usernames of the TV work contributors. Save time in requests.get
+INFOCACHE=caching.openCache('twitter.json') # Data cache that stores the retrieved data using Twitter API. At the same time, store the data to be inserted into the data structure. Save time in API data lookup.
 
 def getTwitterUsername(url,name):
+    '''
+    inputs: the url of the wikipedia pages of TV works (string); the name of the TV work (string).
+    output: a list of lists. For each element, which is a list, has a shape of [<Full name of contributor>,<Twitter Username>].
+    The function will use the url to retrieve the html scripts of the TV work wiki page. If already retrieved before, data will be read from cache.
+    Beautifulsoup will find the cast list and extract the full names of contributors and the links to their personal wiki pages.
+    If the person has been extracted before, data will be read from cache.
+    The links to their personal wiki pages will be used again to retrieve the html scripts of the contributor wiki page. If already retrieved before, data will be read from cache.
+    Beautifulsoup will find all links in the page.
+    re library and regular expressions are used to find all the links starting with Twitter urls.
+    The usernames can be found after "https://www.twitter.com/". In this way, the username of the contributor is found.
+    Given the full names (obtained with BeautifulSoup) and the usernames (obtained with re), the output list can be generated.
+    '''
     wikiLinkList=[]
     username=[]
     if name in PAGECACHE:
@@ -54,6 +66,12 @@ def getTwitterUsername(url,name):
     return username
 
 def create_url(username):
+    '''
+    Input: Twitter username (string)
+    output: a URL to look up with Twitter API (string).
+    The function is used to generate a look-up URL for Twitter API.
+    All the attributes in user_fields will be obtained with Twitter API.
+    '''
     names = "usernames="+username
     user_fields = "user.fields=description,created_at,id,location,name,profile_image_url"
     # User fields are adjustable, options include:
@@ -64,11 +82,18 @@ def create_url(username):
     return url
 
 def bearer_oauth(r):
+    '''
+    The function is used to pass the Twitter API v2 with OAuth authorization. Bearer token is used.
+    '''
     r.headers["Authorization"] = f"Bearer {bearer_token}"
     r.headers["User-Agent"] = "v2UserLookupPython"
     return r
 
 def connect_to_endpoint(url):
+    '''
+    Input: URL to be used in Twitter API (string).
+    Output: a dictionary that includes the data retrived with Twitter API.
+    '''
     response = requests.request("GET", url, auth=bearer_oauth,)
     print(response.status_code)
     if response.status_code != 200:
@@ -80,7 +105,16 @@ def connect_to_endpoint(url):
     return response.json()
 
 def getFollowing(userID,infoDict):
-    print('called')
+    '''
+    Input: the Twitter User ID to be used in following lookup with Twitter API (string). A dictionary that includes all the data to be inserted into the data structure.
+    In the dictionary, the key is the username of a Twitter user. The value is a dictionary that includes all information of that user.
+    Output: A list that includes 100 (max) usernames that the user with userID (input) follows.
+    The function is an integration of several functions: create_url, bearer_oauth, connect_to_endpoint, and the main body of getFollowing.
+    The function will use Twitter API to look up the users that a user is following. If the userID has already been looked up before, the data will be read from cache.
+    The retrieved following list will be added as a value with a key of: "followinig" in the value dictionary with the key of the target username.
+    (With the userID, a list containing at most 100 following users will be retrieved with Twitter API and added into infoDict. The input userID corresponds to a unique
+    username. This username is found. Then, infoDict[username], which is a dictionary, will have one more key-value pair: 'following': [a following list].)
+    '''
     nameList=[]
     if userID in INFOCACHE:
         nameList=INFOCACHE[userID].copy()
@@ -114,6 +148,12 @@ def getFollowing(userID,infoDict):
     return nameList
 
 def getTwitterInfo(usernames):
+    '''
+    Input: a list of usernames. This is the output of getTwitterUsername(url, name) function.
+    Output: A dictionary of all data to be inserted into the data structure. The keys are Twitter usernames. The values are dictionaries of all user information.
+    The function uses Twitter API to retrieve data of users. If data has already been looked up before, data will be read from cache.
+    If the data does not have the key: "following", getFollowing function will be called and cache will be updated.
+    '''
     infoDict={}
     for username in usernames:
         if username[1] in INFOCACHE:
